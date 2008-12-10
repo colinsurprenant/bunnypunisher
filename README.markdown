@@ -3,7 +3,9 @@
 This project offers stress tests and examples for using RabbitMQ with Ruby.
 
 ## Author
-  * Colin Surprenant - Praized Media - http://www.praizedmedia.com/
+
+* Colin Surprenant, Praized Media
+    * http://www.praizedmedia.com/  
     * http://github.com/colinsurprenant/ 
     * http://eventuallyconsistent.com/blog/
         
