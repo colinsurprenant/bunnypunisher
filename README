@@ -1,6 +1,16 @@
+# BunnyPunisher
+
 This project offers stress tests and examples for using RabbitMQ with Ruby.
 
-qpid_punisher.rb:
+Author:
+  * Colin Surprenant, Praized Media http://www.praizedmedia.com/
+      * http://github.com/colinsurprenant/ 
+      * http://eventuallyconsistent.com/blog/
+        
+
+## Content
+
+### qpid_punisher.rb:
 
   Stress test and example for the qpid gem and RabbitMQ. 
   
@@ -14,4 +24,10 @@ qpid_punisher.rb:
     ruby qpid_punisher -c 
   and in the other type:
     ruby qpid_punisher -p
-  
+
+    
+## Changelog
+
+**Version 0.1: 2008-12-09**
+
+* Inital release.
