@@ -5,8 +5,8 @@
 #         http://github.com/colinsurprenant/
 #         http://eventuallyconsistent.com/blog/
 #
-# Revision: 1.0
-# Date: Dec 9, 2008
+# Revision: 1.1
+# Date: May 5, 2009
 #
 # Requires the Qpid Gem available at:
 #   http://github.com/colinsurprenant/qpid
@@ -68,29 +68,23 @@ module BunnyPunisher
     c = Qpid::Content.new(EMPTY_HEADER, Marshal.dump(data))
     channel.basic_publish(:routing_key => key.to_s, :content => c, :exchange => 'amq.direct')    
   end
+  
+  def self.bench
+    time_start = Time.now    
+    yield
+    puts("sent #{ITEMS_PER_ITERATION} in #{(Time.now - time_start).to_s} sec")
+  end
             
   def self.publish(channel, key, value)
     puts("publishing on queue=#{key}, data=#{value.to_s}")
-    
-    i = 0; n = 0
-    time_start = Time.now
-    
-    self.qpid_publish(channel, key, "begin")
-    
-    loop do
-      self.qpid_publish(channel, key, value)    
-      
-      i += 1
-      if (i % ITEMS_PER_ITERATION) == 0
-        puts("sent #{i} in #{(Time.now - time_start).to_s} sec")
-        i = 0; n += 1
-        sleep(2) # allow qpid queues to empty
-        time_start = Time.now
-        
-        self.qpid_publish(channel, key, "end")    
-        self.qpid_publish(channel, key, "begin") if n < MAX_ITERATIONS
+
+    (1..MAX_ITERATIONS).each do
+      self.bench do
+        self.qpid_publish(channel, key, "begin")
+        (1..ITEMS_PER_ITERATION).each { self.qpid_publish(channel, key, value) }
+        self.qpid_publish(channel, key, "end")
       end
-      break if n >= MAX_ITERATIONS
+      sleep(2) # allow qpid queues to empty
     end
     
     self.qpid_publish(channel, key, "stop")    
@@ -110,6 +104,7 @@ module BunnyPunisher
       message = queue.pop(non_block = false)
       channel.basic_ack(message.delivery_tag)
       value = Marshal.load(message.content.body) 
+#      puts("received value=#{value.inspect}")
       
       case value
       when "begin"
@@ -142,18 +137,19 @@ module BunnyPunisher
 
     channel, client = connect
     key = "test_queue"
+    data = "test data"
     
     case mode
     when :consumer
       consume(channel, client, key)
     when :publisher      
-      publish(channel, key, "some data")
+      publish(channel, key, data)
     end
     
     close(channel, client)
   end
 end
 
-puts("starting BunnyPunisher")
+puts("starting Qpid Punisher")
 BunnyPunisher::main
-puts("exiting BunnyPunisher")
+puts("exiting Qpid Punisher")
